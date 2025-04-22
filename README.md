@@ -1,4 +1,4 @@
 内容来源于：
-https://cf.trackerslist.com/all.txt
-https://raw.githubusercontent.com/ngosang/trackerslist/master/trackers_all.txt
-https://raw.githubusercontent.com/Tunglies/TrackersList/main/all.txt
+https://cf.trackerslist.com
+https://github.com/ngosang/trackerslist/master
+https://github.com/Tunglies/TrackersList
