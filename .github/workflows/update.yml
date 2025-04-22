@@ -1,0 +1,33 @@
+name: Update Trackers
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 时间 0 点运行
+  workflow_dispatch:     # 允许手动触发
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+        
+    - name: Install dependencies
+      run: pip install requests
+      
+    - name: Run merger script
+      run: python merge_trackers.py
+      
+    - name: Commit changes
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add combined.txt
+        git commit -m "Auto-update trackers" || echo "No changes to commit"
+        git push
