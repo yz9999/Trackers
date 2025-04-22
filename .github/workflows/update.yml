@@ -8,11 +8,15 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:  # 添加权限设置
+      contents: write
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+      with:  # 添加 token 参数
+        token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -24,10 +28,9 @@ jobs:
     - name: Run merger script
       run: python merge_trackers.py
       
-    - name: Commit changes
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        git add combined.txt
-        git commit -m "Auto-update trackers" || echo "No changes to commit"
-        git push
+    - name: Commit and Push
+      uses: ad-m/github-push-action@v0.6.0  # 使用专门推送的 Action
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        force: true
