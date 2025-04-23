@@ -1,0 +1,49 @@
+name: Update Trackers
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天UTC时间0点
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 获取完整提交历史
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: pip install requests
+
+    - name: Run merger script
+      run: python merge_trackers2.py
+      shell: bash
+
+    - name: Create commit
+      id: commit
+      run: |
+        git config --global user.name "Tracker Updater"
+        git config --global user.email "updater@trackers.com"
+        git add Trackers.txt
+        
+        # 强制创建提交（即使没有变化）
+        git commit -m "Auto-update trackers (强制提交)" --allow-empty || true
+        
+        echo "commit_hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+    - name: Push changes
+      uses: ad-m/github-push-action@v0.6.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        force: true
