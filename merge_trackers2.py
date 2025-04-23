@@ -34,7 +34,7 @@ def main():
     # 生成单行逗号分隔格式
     tracker_line = ",".join(filtered_trackers)
     
-    with open("combined.txt", "w") as f:
+    with open("all_aria2", "w") as f:
         f.write(tracker_line)  # 注意这里没有换行符
 
 if __name__ == "__main__":
