@@ -563,7 +563,7 @@ crontab_update_start() {
     crontab -l >"/tmp/crontab.bak"
     sed -i "/aria2.sh update-bt-tracker/d" "/tmp/crontab.bak"
     sed -i "/tracker.sh/d" "/tmp/crontab.bak"
-    echo -e "\n0 7 * * * /bin/bash <(wget -qO- git.io/tracker.sh) ${aria2_conf} RPC 2>&1 | tee ${aria2_conf_dir}/tracker.log" >>"/tmp/crontab.bak"
+    echo -e "\n0 7 * * * /bin/bash <(wget -qO- https://raw.githubusercontent.com/yz9999/Trackers/refs/heads/main/tracker.sh) ${aria2_conf} RPC 2>&1 | tee ${aria2_conf_dir}/tracker.log" >>"/tmp/crontab.bak"
     crontab "/tmp/crontab.bak"
     rm -f "/tmp/crontab.bak"
     if [[ -z $(crontab_update_status) ]]; then
