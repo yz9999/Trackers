@@ -49,7 +49,7 @@ GET_TRACKERS() {
     if [[ -z "${CUSTOM_TRACKER_URL}" ]]; then
         echo && echo -e "$(DATE_TIME) ${INFO} Get BT trackers..."
         TRACKER=$(
-            ${DOWNLOADER} https://raw.githubusercontent.com/yz9999/Trackers/refs/heads/main/combined.txt
+            ${DOWNLOADER} https://trackerslist.com/all_aria2.txt
         )
     else
         echo && echo -e "$(DATE_TIME) ${INFO} Get BT trackers from url(s):${CUSTOM_TRACKER_URL} ..."
