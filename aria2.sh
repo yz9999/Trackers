@@ -589,9 +589,9 @@ Update_bt_tracker() {
     check_installed_status
     check_pid
     [[ -z $PID ]] && {
-        bash <(wget -qO- git.io/tracker.sh) ${aria2_conf}
+        bash <(wget -qO- https://raw.githubusercontent.com/yz9999/Trackers/refs/heads/main/tracker.sh) ${aria2_conf}
     } || {
-        bash <(wget -qO- git.io/tracker.sh) ${aria2_conf} RPC
+        bash <(wget -qO- https://raw.githubusercontent.com/yz9999/Trackers/refs/heads/main/tracker.sh) ${aria2_conf} RPC
     }
 }
 Update_aria2() {
