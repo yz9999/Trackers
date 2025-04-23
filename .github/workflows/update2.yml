@@ -34,7 +34,7 @@ jobs:
       run: |
         git config --global user.name "Tracker Updater"
         git config --global user.email "updater@trackers.com"
-        git add combined.txt
+        git add all_aria2
         
         # 强制创建提交（即使没有变化）
         git commit -m "Auto-update trackers (强制提交)" --allow-empty || true
