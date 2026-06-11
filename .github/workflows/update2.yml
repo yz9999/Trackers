@@ -1,9 +1,9 @@
-name: Update2 Trackers
+name: Update Trackers2
 
 on:
   schedule:
-    - cron: '0 */2 * * *'  # 每天UTC时间0点
-  workflow_dispatch:
+    - cron: '0 */2 * * *'  # 每 2 小时运行一次 (UTC 时间)
+  workflow_dispatch:        # 允许你手动点击按钮触发测试
 
 jobs:
   update:
@@ -15,7 +15,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # 获取完整提交历史
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -26,24 +26,41 @@ jobs:
       run: pip install requests
 
     - name: Run merger script
-      run: python merge_trackers2.py
+      run: |
+        python merge_trackers2.py
+        # 调试：打印所有当前目录下的 .txt 文件，方便定位
+        echo "=== 检查生成的 txt 文件 ==="
+        ls -F
+        find . -name "*.txt"
       shell: bash
 
     - name: Create commit
       id: commit
       run: |
+        # 配置 Git 用户
         git config --global user.name "Tracker Updater"
         git config --global user.email "updater@trackers.com"
+        
+        # 严格检查目标文件
+        if [ ! -f "all_aria2.txt" ]; then
+          echo "错误: all_aria2.txt 未在根目录找到。"
+          exit 1
+        fi
+        
         git add all_aria2.txt
         
-        # 强制创建提交（即使没有变化）
-        git commit -m "Auto-update trackers (强制提交)" --allow-empty || true
-        
-        echo "commit_hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        # 只有在有变更时才提交
+        if git diff --quiet && git diff --staged --quiet; then
+          echo "没有检测到内容更新，跳过提交。"
+          echo "changed=false" >> $GITHUB_OUTPUT
+        else
+          git commit -m "Auto-update trackers: $(date +'%Y-%m-%d %H:%M:%S')"
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
 
     - name: Push changes
+      if: steps.commit.outputs.changed == 'true'
       uses: ad-m/github-push-action@v0.6.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
-        force: true
+        branch: main  # 确保这里填写你的默认分支名称
