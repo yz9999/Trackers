@@ -23,7 +23,7 @@ def main():
         all_trackers.update(trackers)
     
     # 过滤有效条目
-    valid_protocols = ('udp://', 'http://', 'https://')
+    valid_protocols = ('udp://', 'http://', 'https://', 'wss://')
     filtered_trackers = sorted(
         [t for t in all_trackers 
          if t.startswith(valid_protocols) 
