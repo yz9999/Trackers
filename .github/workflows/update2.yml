@@ -2,7 +2,7 @@ name: Update Trackers2
 
 on:
   schedule:
-    - cron: '0 */2 * * *'  # 每天UTC时间0点
+    - cron: '0 */2 * * *'  # 每2小时运行一次
   workflow_dispatch:
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # 获取完整提交历史
+        fetch-depth: 0  # 获取完整历史，便于对比
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -32,18 +32,33 @@ jobs:
     - name: Create commit
       id: commit
       run: |
+        # 1. 配置 Git 用户
         git config --global user.name "Tracker Updater"
         git config --global user.email "updater@trackers.com"
+
+        # 2. 检查文件是否存在，防止路径错误
+        if [ ! -f "all_aria2.txt" ]; then
+          echo "错误: all_aria2.txt 未生成，请检查 merge_trackers2.py 的输出路径。"
+          exit 1
+        fi
+
+        # 3. 添加文件并检测是否有变更
         git add all_aria2.txt
         
-        # 强制创建提交（即使没有变化）
-        git commit -m "Auto-update trackers (强制提交)" --allow-empty || true
-        
-        echo "commit_hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        # 4. 提交更改 (使用 diff-index 判断是否有真实更改)
+        if git diff --quiet && git diff --staged --quiet; then
+          echo "没有检测到文件内容变更，跳过提交。"
+          echo "changed=false" >> $GITHUB_OUTPUT
+        else
+          git commit -m "Auto-update trackers: $(date +'%Y-%m-%d %H:%M:%S')"
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "commit_hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        fi
 
     - name: Push changes
+      if: steps.commit.outputs.changed == 'true'
       uses: ad-m/github-push-action@v0.6.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ github.ref }}
-        force: true
+        # 建议：如果不是唯一写入源，建议去掉 force: true
